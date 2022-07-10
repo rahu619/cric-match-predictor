@@ -21,7 +21,10 @@ def main():
 
     preProcessor = PreProcessor(df, X, y)
     preProcessor.filter()
-    preProcessor.split_and_expand(['home_playx1', 'away_playx1'])
+    preProcessor.split_and_expand(
+        ['home_playx1', 'away_playx1',
+         'home_key_batsman', 'home_key_bowler', 'away_key_batsman', 'away_key_bowler']
+    )
     preProcessor.encode_categories()
     preProcessor.print_data_quality()
 
