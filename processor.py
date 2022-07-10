@@ -5,7 +5,7 @@ Created on Sat Jul  9 09:08:02 2022
 @author: Dev_Me
 """
 import numpy as np
-from pandas import DataFrame
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -14,7 +14,7 @@ class PreProcessor:
         self.dataframe = df
         self.predictors_arr = predictors_arr
         self.target = target
-
+        self.variables = np.append(self.predictors_arr, self.target)
         # Performing Exploratory Data Analysis
         print('Analysing shape')
         print(df.shape)
@@ -27,9 +27,9 @@ class PreProcessor:
         # Checking for duplicates
         self.dataframe[self.dataframe.duplicated(keep=False)]
 
-        # Retaining the predictor X variables alone in the dataframe
+        # Retaining the predictor X, target y variables alone in the dataframe
         self.dataframe.drop(
-            columns=[column for column in self.dataframe if column not in self.predictors_arr], inplace=True)
+            columns=[column for column in self.dataframe if column not in self.variables], inplace=True)
 
     def split_and_expand(self, labels_arr):
         # splitting and expanding specific labels
@@ -62,6 +62,9 @@ class PreProcessor:
         print('--------------- Validating Multivariate outliers in n-dimensional space ----------------\n')
         print(self.dataframe.describe())
         print()
+
+    def data_correlation(self):
+        corr = self.dataframe['winner']
 
     # region Properties
 

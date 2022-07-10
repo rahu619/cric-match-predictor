@@ -27,6 +27,14 @@ def main():
 
     # TODO: Find outliers from dataset
 
+    # Visualizers - use seaborn perhaps(?)
+    # No:of times the home team won vs away team
+    # Most wins per team
+    # Impact of winning a toss
+
+    # Calculate correlation of dependent variables
+    # and visualize it (?)
+
 
 if __name__ == '__main__':
     main()
