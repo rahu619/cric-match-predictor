@@ -13,10 +13,10 @@ def main():
     print('importing dataset')
 
     dataImporterObj = DataManager()
-    df = dataImporterObj.read_csv('all_season_summary.csv')
+    df = dataImporterObj.read_csv('all_season_summary_with_percentage.csv')
 
     # The following fn can be used to include home/away win % in the default dataset
-    dataImporterObj.include_team_win_percentages(df)
+    # dataImporterObj.include_team_win_percentages(df)
 
     print(df)
 
