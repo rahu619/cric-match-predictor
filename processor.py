@@ -7,6 +7,8 @@ Created on Sat Jul  9 09:08:02 2022
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class PreProcessor:
@@ -63,8 +65,14 @@ class PreProcessor:
         print(self.dataframe.describe())
         print()
 
-    def data_correlation(self):
-        corr = self.dataframe['winner']
+    def plotting_data_correlation(self):
+        # Calculating correlation of dependent variables and visualizing
+        corr_matrix = self.dataframe.corr()
+        print(corr_matrix[self.target].sort_values(ascending=False))
+        sns.heatmap(corr_matrix,
+                    xticklabels=self.dataframe.columns,
+                    yticklabels=self.dataframe.columns)
+        plt.show()
 
     # region Properties
 
