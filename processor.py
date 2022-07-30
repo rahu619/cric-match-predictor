@@ -48,21 +48,20 @@ class PreProcessor:
             self.predictors_arr.extend(split_columns)
 
         # removing irrelevant X variables from the dataframe
-        self.dataframe.drop(columns=labels_arr)
+        self.dataframe.drop(labels_arr, axis=1, inplace=True)
 
         # modifying X variables to accomodate new variables
         self.predictors_arr = np.setdiff1d(self.predictors_arr, labels_arr)
 
     def encode_categories(self, encode_labels_arr=None):
-        """
-        To encoding the categorical variables into numerical labels
-        """
+        """To encoding the categorical variables into numerical labels"""
         # TODO: Introduce rescaling by using MinMaxScaler(?)
         LE = LabelEncoder()
-        for column in (self.dataframe[encode_labels_arr] if encode_labels_arr != None else self.dataframe):
+        for column in (self.dataframe[encode_labels_arr] if encode_labels_arr is not None else self.dataframe):
             self.dataframe[column] = LE.fit_transform(self.dataframe[column])
 
     def print_data_quality(self):
+        """Prints the dataframe meta info"""
         print("--------------- Validating if there are NULL values ----------------\n")
         print(self.dataframe.info())
         print('--------------- Displaying First 5 rows ----------------\n')
@@ -76,23 +75,25 @@ class PreProcessor:
         """ For calculating and visualizing the correlations between dependent and independent variables. This approach could assert our assumptions for selecting appropriate predictor variables """
         corr_matrix = self.dataframe.corr()
         print(corr_matrix[self.target].sort_values(ascending=False))
-        # sns.heatmap(corr_matrix,
-        #             xticklabels=self.dataframe.columns,
-        #             yticklabels=self.dataframe.columns)
+        sns.heatmap(corr_matrix,
+                    xticklabels=self.dataframe.columns,
+                    yticklabels=self.dataframe.columns)
         # plt.show()
 
     # region Properties
 
     @property
     def dataframe(self):
+        """Getter for the cricket dataframe"""
         return self._df
+
+    @property
+    def refined_X(self):
+        """Getter for the newly refined X variables"""
+        return self.predictors_arr
 
     @dataframe.setter
     def dataframe(self, value):
         self._df = value
-
-    @property
-    def refined_X(self):
-        return self.predictors_arr
 
     # endregion
