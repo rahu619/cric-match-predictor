@@ -12,6 +12,8 @@ import seaborn as sns
 
 
 class PreProcessor:
+    """Processes the input variables"""
+
     def __init__(self, df, predictors_arr, target):
         self.dataframe = df
         self.predictors_arr = predictors_arr
@@ -34,16 +36,22 @@ class PreProcessor:
             columns=[column for column in self.dataframe if column not in self.variables], inplace=True)
 
     def split_and_expand(self, labels_arr):
-        # splitting and expanding specific labels
+        """ Splits and expands the specified labels """
         for label in labels_arr:
             temp = self.dataframe[label].str.split(',', expand=True).applymap(
                 lambda x: np.nan if x is None else x)
-            new_column = label[0:len(label)-2]
-            self.dataframe[[new_column+'_' +
-                            str(i) for i in range(1, temp.shape[1] + 1)]] = temp
+            split_columns = [label + '_' + str(i)
+                             for i in range(1, temp.shape[1] + 1)]
+            self.dataframe[split_columns] = temp
 
-        # removing labels_arr
+            # concatenating the new columns into our X variable set
+            self.predictors_arr.extend(split_columns)
+
+        # removing irrelevant X variables from the dataframe
         self.dataframe.drop(columns=labels_arr)
+
+        # modifying X variables to accomodate new variables
+        self.predictors_arr = np.setdiff1d(self.predictors_arr, labels_arr)
 
     def encode_categories(self, encode_labels_arr=None):
         """
@@ -52,8 +60,7 @@ class PreProcessor:
         # TODO: Introduce rescaling by using MinMaxScaler(?)
         LE = LabelEncoder()
         for column in (self.dataframe[encode_labels_arr] if encode_labels_arr != None else self.dataframe):
-            self.dataframe[column] = LE.fit_transform(
-                self.dataframe[column])
+            self.dataframe[column] = LE.fit_transform(self.dataframe[column])
 
     def print_data_quality(self):
         print("--------------- Validating if there are NULL values ----------------\n")
@@ -66,13 +73,13 @@ class PreProcessor:
         print()
 
     def plotting_data_correlation(self):
-        # Calculating correlation of dependent variables and visualizing
+        """ For calculating and visualizing the correlations between dependent and independent variables. This approach could assert our assumptions for selecting appropriate predictor variables """
         corr_matrix = self.dataframe.corr()
         print(corr_matrix[self.target].sort_values(ascending=False))
-        sns.heatmap(corr_matrix,
-                    xticklabels=self.dataframe.columns,
-                    yticklabels=self.dataframe.columns)
-        plt.show()
+        # sns.heatmap(corr_matrix,
+        #             xticklabels=self.dataframe.columns,
+        #             yticklabels=self.dataframe.columns)
+        # plt.show()
 
     # region Properties
 
@@ -83,5 +90,9 @@ class PreProcessor:
     @dataframe.setter
     def dataframe(self, value):
         self._df = value
+
+    @property
+    def refined_X(self):
+        return self.predictors_arr
 
     # endregion
