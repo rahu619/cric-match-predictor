@@ -18,7 +18,7 @@ def main():
     # The following fn can be used to include home/away win % in the default dataset
     # dataImporterObj.include_team_win_percentages(df)
 
-    print(df)
+    # print(df)
 
     X_variables = ['home_team', 'away_team', 'toss_won', 'decision', 'reserve_umpire', 'home_key_batsman',
                    'home_key_bowler', 'away_key_batsman', 'away_key_bowler', 'home_captain', 'away_captain', 'venue_name',
@@ -28,9 +28,34 @@ def main():
 
     processor_obj = PreProcessor(df, X_variables, y_variables)
     processor_obj.filter()
+
+    # Modifies list of features to include the split columns
     processor_obj.split_and_expand(['home_playx1', 'away_playx1',
                                     'home_key_batsman', 'home_key_bowler', 'away_key_batsman', 'away_key_bowler'])
-    processor_obj.encode_categories()
+
+    unique_map_team_arr = ['home_team', 'away_team']
+    processor_obj.encode_group_of_columns(
+        [unique_map_team_arr], unique_map_team_arr)
+
+    unique_map_players_arr = [
+        'home_playx1_1', 'home_playx1_2', 'home_playx1_3', 'home_playx1_4', 'home_playx1_5', 'home_playx1_6', 'home_playx1_7', 'home_playx1_8', 'home_playx1_9', 'home_playx1_10', 'home_playx1_11',
+        'away_playx1_1', 'away_playx1_2', 'away_playx1_3', 'away_playx1_4', 'away_playx1_5', 'away_playx1_6', 'away_playx1_7', 'away_playx1_8', 'away_playx1_9', 'away_playx1_10', 'away_playx1_11',
+    ]
+    processor_obj.encode_group_of_columns([
+        unique_map_players_arr,
+        [
+            'home_key_batsman_1', 'home_key_batsman_2',
+            'away_key_batsman_1', 'away_key_batsman_2',
+            'home_key_bowler_1', 'home_key_bowler_2',
+            'away_key_bowler_1', 'away_key_bowler_2',
+        ],
+        [
+            'home_captain', 'away_captain'
+        ]
+    ], unique_map_players_arr)
+
+    processor_obj.encode_columns(
+        ['toss_won', 'decision', 'reserve_umpire', 'venue_name', 'away_team_win_percentage', 'winner'])
     processor_obj.print_data_quality()
     processor_obj.plotting_data_correlation()
 

@@ -19,6 +19,7 @@ class PreProcessor:
         self.predictors_arr = predictors_arr
         self.target = target
         self.variables = np.append(self.predictors_arr, self.target)
+        self.BRACKET_CHAR = '('
         # Performing Exploratory Data Analysis
         print('Analysing shape')
         print(df.shape)
@@ -44,6 +45,10 @@ class PreProcessor:
                              for i in range(1, temp.shape[1] + 1)]
             self.dataframe[split_columns] = temp
 
+            for column in self.dataframe[split_columns]:
+                self.dataframe[column] = self.dataframe[column].map(
+                    lambda x: self.__cleanup_brackets(x))
+
             # concatenating the new columns into our X variable set
             self.predictors_arr.extend(split_columns)
 
@@ -53,7 +58,37 @@ class PreProcessor:
         # modifying X variables to accomodate new variables
         self.predictors_arr = np.setdiff1d(self.predictors_arr, labels_arr)
 
-    def encode_categories(self, encode_labels_arr=None):
+    def __get_encode_group_of_columns_dict(self, columns_arr):
+        encoded_unique_dict = {}
+        unique_values = []
+        for column in self.dataframe[columns_arr]:
+            for item in self.dataframe[column].values:
+                if item not in unique_values:
+                    unique_values.append(item)
+
+        LE = LabelEncoder()
+        for i, value in enumerate(LE.fit_transform(unique_values)):
+            encoded_unique_dict[unique_values[i]] = value
+
+        return encoded_unique_dict
+
+    # As most players have an invalid bracket character appended to the name
+    def __cleanup_brackets(self, value):
+        if self.BRACKET_CHAR in value:
+            return value[0:value.index(self.BRACKET_CHAR) - 1]
+        return value
+
+    def encode_group_of_columns(self, arr_columns_to_modify_arr, unique_map_columns_arr):
+        encoded_unique_dict = self.__get_encode_group_of_columns_dict(
+            unique_map_columns_arr)
+        # print('encoded_unique_dict: ', encoded_unique_dict)
+        for columns_arr in arr_columns_to_modify_arr:
+            for column in self.dataframe[columns_arr]:
+                self.dataframe[column].replace(
+                    encoded_unique_dict, inplace=True)
+            # print('columns_arr: ', self.dataframe[columns_arr])
+
+    def encode_columns(self, encode_labels_arr=None):
         """To encoding the categorical variables into numerical labels"""
         # TODO: Introduce rescaling by using MinMaxScaler(?)
         LE = LabelEncoder()
@@ -79,6 +114,9 @@ class PreProcessor:
                     xticklabels=self.dataframe.columns,
                     yticklabels=self.dataframe.columns)
         # plt.show()
+
+    def df_write(self):
+        self.dataframe.to_csv('data\output.csv', encoding='utf-8', index=False)
 
     # region Properties
 
