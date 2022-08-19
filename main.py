@@ -73,8 +73,8 @@ def main():
     print("Random Forest Classifier model accuracy:",
           random_forest_classfier_accuracy)
 
-    # support_vector_machine_accuracy = algorithm_obj.support_vector_machine()
-    # print("SVM model accuracy:", support_vector_machine_accuracy)
+    support_vector_machine_accuracy = algorithm_obj.support_vector_machine()
+    print("SVM model accuracy:", support_vector_machine_accuracy)
 
     # TODO: Try out Hyper-parameter tuning to improve the score from ~51%
 
