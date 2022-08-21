@@ -6,9 +6,16 @@ Created on Sat Jul  9 09:08:02 2022
 """
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler, MaxAbsScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+from enum import Enum
+
+
+class Scaler(Enum):
+    MINMAX = 1,
+    STANDARD = 2,
+    MAXABS = 3
 
 
 class PreProcessor:
@@ -114,6 +121,14 @@ class PreProcessor:
                     xticklabels=self.dataframe.columns,
                     yticklabels=self.dataframe.columns)
         # plt.show()
+
+    def scale(self, scaler, arr):
+        if scaler == Scaler.MINMAX:
+            return MinMaxScaler().fit_transform(arr)
+        elif scaler == Scaler.STANDARD:
+            return StandardScaler().fit_transform(arr)
+        elif scaler == Scaler.MAXABS:
+            return MaxAbsScaler().fit_transform(arr)
 
     def df_write(self):
         self.dataframe.to_csv('data\output.csv', encoding='utf-8', index=False)

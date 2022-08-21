@@ -4,6 +4,10 @@ from sklearn import metrics
 from sklearn import svm
 import numpy as np
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 class Algorithms:
@@ -34,10 +38,11 @@ class Algorithms:
         clf.fit(self.X_train, self.y_train)
 
         # Predicting
-        y_pred = clf.predict(self.X_test)
+        predict_test = clf.predict(self.X_test)
 
         # calculating accuracy and returning the score
-        return metrics.accuracy_score(self.y_test, y_pred)
+        print(classification_report(self.y_test, predict_test))
+        return metrics.accuracy_score(self.y_test, predict_test)
 
     def random_forest_regressor(self):
         """Uses the RFR model and calculates the accuracy"""
@@ -57,10 +62,55 @@ class Algorithms:
 
     def support_vector_machine(self):
         """Uses the SVM model and calculates the accuracy"""
-        clf = svm.SVC()
+        scaler = StandardScaler()
+        # train_data = scaler.fit_transform(self.X_train)
+        clf = svm.SVC(C=10, cache_size=200, class_weight='balanced', coef0=0.0,
+                      decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',
+                      max_iter=-1, probability=False, random_state=None, shrinking=True,
+                      tol=0.001, verbose=False)
         clf.fit(self.X_train, self.y_train)
         y_pred = clf.predict(self.X_test)
         return metrics.accuracy_score(self.y_test, y_pred)
+
+    def KNeighbours(self):
+        neighbors = 41
+        knn = KNeighborsClassifier(
+            n_neighbors=neighbors,
+            weights='uniform',
+            p=1
+        )
+
+        knn = knn.fit(self.X_train, self.y_train)
+
+        y_predict_train = knn.predict(self.X_train)
+        y_predict_test = knn.predict(self.X_test)
+
+        accuracy_train = sum(
+            y_predict_train == self.y_train) / len(self.y_train)
+        accuracy_test = sum(y_predict_test == self.y_test) / len(self.y_test)
+
+        print(
+            "Neighbours:",
+            "%3d" % neighbors,
+            " Trained Accuracy:",
+            "%6.2f" % (100*accuracy_train),
+            " Test Accuracy:",
+            "%6.2f" % (100*accuracy_test)
+        )
+        return (100*accuracy_train)
+
+    def neural(self):
+        mlp = MLPClassifier(hidden_layer_sizes=(8, 8, 8),
+                            activation='relu', solver='adam', max_iter=500)
+
+        mlp.fit(self.X_train, self.y_train)
+
+        predict_train = mlp.predict(self.X_train)
+        predict_test = mlp.predict(self.X_test)
+        # print(confusion_matrix(self.y_train, predict_train))
+        # print(classification_report(self.y_train, predict_train))
+        print(confusion_matrix(self.y_test, predict_test))
+        print(classification_report(self.y_test, predict_test))
 
     def __optimal_hyper_parameters_for_RFC(self):
         rfc = RandomForestClassifier()

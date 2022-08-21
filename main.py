@@ -5,7 +5,7 @@ Created on Sun Jul  3 11:56:32 2022
 @author: Dev_Me
 """
 from dataManager import DataManager
-from processor import PreProcessor
+from processor import PreProcessor, Scaler
 from algorithms import Algorithms
 
 
@@ -24,9 +24,9 @@ def main():
                    'home_key_bowler', 'away_key_batsman', 'away_key_bowler', 'home_captain', 'away_captain', 'venue_name',
                    'home_playx1', 'away_playx1', 'away_team_win_percentage']
 
-    y_variables = 'winner'
+    y_variable = 'home_team_won'
 
-    processor_obj = PreProcessor(df, X_variables, y_variables)
+    processor_obj = PreProcessor(df, X_variables, y_variable)
     processor_obj.filter()
 
     # Modifies list of features to include the split columns
@@ -63,7 +63,7 @@ def main():
 
     # Encoding the rest of the features column wise
     processor_obj.encode_columns(
-        ['toss_won', 'decision', 'reserve_umpire', 'venue_name', 'away_team_win_percentage', 'winner'])
+        ['toss_won', 'decision', 'reserve_umpire', 'venue_name', 'away_team_win_percentage'])
 
     processor_obj.print_data_quality()
 
@@ -75,18 +75,25 @@ def main():
     df = processor_obj.dataframe
 
     X = df[processor_obj.refined_X]
-    y = df[y_variables]
+    y = df[y_variable]
+
+    # Choosing relevant columns alone
+    # X = X[['home_team', 'toss_won', 'away_team', 'venue_name',
+    #        'away_team_win_percentage', 'home_key_bowler_1', 'home_key_bowler_2', 'away_key_bowler_1', 'away_key_bowler_2', 'home_key_batsman_1', 'home_key_batsman_2', 'away_key_batsman_1', 'away_key_batsman_2', 'decision', 'away_captain', 'reserve_umpire']]
 
     # Instantiating algorithms class and passing in predictor and target variables
     algorithm_obj = Algorithms(X, y)
 
-    # Trying out RF model for our regression task
-    random_forest_classfier_accuracy = algorithm_obj.random_forest_classifier()
-    print("Random Forest Classifier model accuracy:",
-          random_forest_classfier_accuracy)
+    X = processor_obj.scale(Scaler.STANDARD, X)
+    # y = processor_obj.scale(Scaler.STANDARD, y.values.reshape(-1, 1))
 
-    # support_vector_machine_accuracy = algorithm_obj.support_vector_machine()
-    # print("SVM model accuracy:", support_vector_machine_accuracy)
+    # Trying out RF model for our regression task
+    print("Random Forest Classifier model accuracy:",
+          algorithm_obj.random_forest_classifier())
+
+    print("SVM model accuracy:", algorithm_obj.support_vector_machine())
+
+    print("KNN model accuracy:", algorithm_obj.KNeighbours())
 
 
 if __name__ == '__main__':
